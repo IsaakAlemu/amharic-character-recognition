@@ -1,0 +1,7 @@
+{
+  "baseline_test_accuracy": 0.8262910798122066,
+  "neural_net_test_accuracy": 0.8626760840415955,
+  "improvement_percentage_points": 3.638500422938884,
+  "num_classes": 33,
+  "num_test_samples": 852
+}
