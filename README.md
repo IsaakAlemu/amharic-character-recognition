@@ -21,16 +21,17 @@ problem like MNIST.
 | Model | Test Accuracy |
 |---|---|
 | Logistic Regression (baseline) | 82.6% |
-| **Neural Network (this project)** | **86.3%** |
+| Dense Neural Network | 86.3% |
+| **Convolutional Neural Network (CNN)** | **95.8%** |
 
 ![Baseline comparison](results/baseline_comparison.png)
 
-The neural network improves ~3.6 percentage points over a linear baseline.
-This is a modest, honestly-reported gain — a dense network on flattened
-pixels has real limits, since it can't exploit spatial/stroke structure the
-way a convolutional network would. Across multiple training runs, test
-accuracy consistently falls in the **85–88% range**, confirming this is a
-stable result and not a lucky single run.
+The dense neural network achieved an 86.3% test accuracy (~3.6 percentage
+points over the linear baseline). Upgrading to a CNN yielded a substantial leap
+to **95.77% test accuracy** (+9.5 pp over Dense NN, +13.1 pp over baseline).
+Across 3 runs with different random seeds, CNN test accuracy consistently
+ranged from **95.4% to 96.5%** (averaging **95.89%**), confirming the stability
+of spatial feature learning across initializations.
 
 ### Training curves
 
@@ -50,9 +51,11 @@ small number of specific, consistent confusions rather than widespread
 errors.
 
 **The most significant confusion, by a wide margin:** ደ (`169de`) predicted
-as ጠ (`211Te`), 12 of 33 test instances. These are two visually similar but
-phonetically distinct letters — a plain "d" versus an ejective "t'" sound —
-and this pair is also a commonly-confused pair for human learners of
+as ጠ (`211Te`):
+- **Dense NN**: 12 of 21 test instances of ደ (57.1% error rate, 5 of 21 correct)
+- **CNN**: 10 of 21 test instances (47.6% error rate, a 9.5 percentage-point reduction) — doubling correct classifications from 5 to 10, though this pair remains the model's single largest confusion even after the architecture upgrade.
+
+These are two visually similar but phonetically distinct letters — a plain "d" versus an ejective "t'" sound — and this pair is also a commonly-confused pair for human learners of
 Amharic script. The model's biggest mistake tracks a genuine visual
 ambiguity in the writing system itself, not an arbitrary pixel-level quirk.
 
@@ -121,6 +124,6 @@ terms. This project's code is released under the license in `LICENSE`.
 ## Future extensions
 
 - Extend to all ~240 character forms (all 7 vowel orders, not just base)
-- Replace dense layers with a CNN to exploit spatial/stroke structure
+- Targeted disambiguation for ደ/ጠ — this pair remains an open bottleneck even with a CNN, suggesting it may require targeted strategies (such as supplemental training data or attention-based fine-grained feature extraction) rather than broader architecture shifts
 - Move from isolated-character to word/sentence-level recognition
 - Build a small demo (upload an image, get back predicted text)

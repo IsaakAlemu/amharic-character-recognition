@@ -1,7 +1,43 @@
 {
-  "baseline_test_accuracy": 0.8262910798122066,
-  "neural_net_test_accuracy": 0.8626760840415955,
-  "improvement_percentage_points": 3.638500422938884,
+  "baseline_logistic_regression_test_accuracy": 0.8262910798122066,
+  "dense_nn_test_accuracy": 0.8626760840415955,
+  "cnn_test_accuracy": 0.9577465057373047,
+  "cnn_test_loss": 0.1416631042957306,
+  "cnn_stability_3_seeds": {
+    "range": "95.4% - 96.5%",
+    "average_test_accuracy": 0.9589,
+    "runs": [
+      {
+        "seed": 42,
+        "test_accuracy": 0.9577,
+        "test_loss": 0.1417
+      },
+      {
+        "seed": 123,
+        "test_accuracy": 0.9542,
+        "test_loss": 0.1421
+      },
+      {
+        "seed": 777,
+        "test_accuracy": 0.9648,
+        "test_loss": 0.1053
+      }
+    ]
+  },
+  "improvements": {
+    "dense_over_baseline_pp": 3.638500422938884,
+    "cnn_over_baseline_pp": 13.145542592509807,
+    "cnn_over_dense_pp": 9.507042169570923
+  },
+  "de_Te_confusion_analysis": {
+    "de_class": "169de",
+    "Te_class": "211Te",
+    "total_test_samples": 21,
+    "dense_misclassified_as_Te": 12,
+    "dense_correct": 5,
+    "cnn_misclassified_as_Te": 10,
+    "cnn_correct": 10
+  },
   "num_classes": 33,
   "num_test_samples": 852
 }
