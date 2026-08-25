@@ -57,22 +57,74 @@ def build_cnn_model():
     ])
 
 
-def main(model_type="dense"):
+from sklearn.utils.class_weight import compute_class_weight
+
+
+def oversample_class_de(X_train, y_train, class_names, target_count=None, seed=SEED):
+    idx_de = int(np.where(class_names == "169de")[0][0])
+    idx_te = int(np.where(class_names == "211Te")[0][0])
+    
+    de_indices = np.where(y_train == idx_de)[0]
+    te_indices = np.where(y_train == idx_te)[0]
+    
+    count_de = len(de_indices)
+    target = len(te_indices) if target_count is None else target_count
+    num_to_add = target - count_de
+    
+    print(f"\n[Oversampling] Class 169de current count: {count_de}, Target count (parity with 211Te): {target}")
+    print(f"[Oversampling] Generating {num_to_add} augmented samples for 169de...")
+    
+    if num_to_add <= 0:
+        return X_train, y_train
+        
+    aug_layer = keras.Sequential([
+        layers.RandomRotation(0.05, seed=seed),
+        layers.RandomTranslation(0.1, 0.1, seed=seed),
+        layers.RandomZoom(0.1, seed=seed),
+    ])
+    
+    rng = np.random.RandomState(seed)
+    chosen_indices = rng.choice(de_indices, size=num_to_add, replace=True)
+    de_samples = X_train[chosen_indices]
+    
+    augmented_samples = aug_layer(de_samples, training=True).numpy()
+    augmented_labels = np.full(num_to_add, idx_de, dtype=y_train.dtype)
+    
+    X_aug = np.concatenate([X_train, augmented_samples], axis=0)
+    y_aug = np.concatenate([y_train, augmented_labels], axis=0)
+    
+    shuffle_idx = rng.permutation(len(y_aug))
+    print(f"[Oversampling] New training set shape: {X_aug.shape}, 169de count is now {np.sum(y_aug == idx_de)}")
+    return X_aug[shuffle_idx], y_aug[shuffle_idx]
+
+
+def main(model_type="dense", class_weighted=False, oversample_de=False):
     X_train = np.load("data/X_train.npy").reshape(-1, 28, 28, 1)
     y_train = np.load("data/y_train.npy")
     X_val = np.load("data/X_val.npy").reshape(-1, 28, 28, 1)
     y_val = np.load("data/y_val.npy")
     X_test = np.load("data/X_test.npy").reshape(-1, 28, 28, 1)
     y_test = np.load("data/y_test.npy")
+    class_names = np.load("data/class_names.npy")
+
+    if oversample_de:
+        X_train, y_train = oversample_class_de(X_train, y_train, class_names, seed=SEED)
+
+    if oversample_de:
+        suffix = "_oversampled"
+    elif class_weighted:
+        suffix = "_weighted"
+    else:
+        suffix = ""
 
     if model_type == "cnn":
         model = build_cnn_model()
-        model_path = "models/amharic_char_model_cnn.keras"
-        history_path = "results/training_history_cnn.json"
+        model_path = f"models/amharic_char_model_cnn{suffix}.keras"
+        history_path = f"results/training_history_cnn{suffix}.json"
     else:
         model = build_dense_model()
-        model_path = "models/amharic_char_model.keras"
-        history_path = "results/training_history.json"
+        model_path = f"models/amharic_char_model{suffix}.keras"
+        history_path = f"results/training_history{suffix}.json"
 
     model.compile(
         optimizer="adam",
@@ -80,6 +132,15 @@ def main(model_type="dense"):
         metrics=["accuracy"],
     )
     model.summary()
+
+    # Compute balanced class weights if requested
+    class_weights_dict = None
+    if class_weighted:
+        classes = np.unique(y_train)
+        weights = compute_class_weight("balanced", classes=classes, y=y_train)
+        class_weights_dict = {int(c): float(w) for c, w in zip(classes, weights)}
+        print("\nClass weighting enabled (balanced inverse class frequency).")
+        print(f"Sample weights: class 23 (169de): {class_weights_dict.get(23, 1.0):.4f}, class 29 (211Te): {class_weights_dict.get(29, 1.0):.4f}")
 
     early_stop = keras.callbacks.EarlyStopping(
         monitor="val_accuracy", patience=5, restore_best_weights=True
@@ -90,6 +151,7 @@ def main(model_type="dense"):
         validation_data=(X_val, y_val),
         epochs=50,
         batch_size=32,
+        class_weight=class_weights_dict,
         callbacks=[early_stop],
         verbose=2,
     )
@@ -105,6 +167,8 @@ def main(model_type="dense"):
     history_dict = {k: [float(v) for v in vals] for k, vals in history.history.items()}
     history_dict["test_accuracy"] = float(test_acc)
     history_dict["test_loss"] = float(test_loss)
+    if class_weighted:
+        history_dict["class_weights"] = class_weights_dict
     with open(history_path, "w") as f:
         json.dump(history_dict, f, indent=2)
 
@@ -121,5 +185,15 @@ if __name__ == "__main__":
         default="dense",
         help="Model architecture to train (dense or cnn, default: dense)",
     )
+    parser.add_argument(
+        "--class-weighted",
+        action="store_true",
+        help="Enable balanced inverse class frequency weighting during training",
+    )
+    parser.add_argument(
+        "--oversample-de",
+        action="store_true",
+        help="Enable targeted data augmentation oversampling for class 169de (ደ) up to parity with 211Te",
+    )
     args = parser.parse_args()
-    main(model_type=args.model)
+    main(model_type=args.model, class_weighted=args.class_weighted, oversample_de=args.oversample_de)

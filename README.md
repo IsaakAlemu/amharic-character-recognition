@@ -60,6 +60,9 @@ A full manual review of all 342 images across both classes ruled out widespread 
 
 This is corroborated by the error directionality: misclassifications are strictly **one-directional** (ደ $\to$ ጸ is common, while ጸ $\to$ ደ is 0.0% / 30 of 30 test samples correct for ጸ), consistent with class imbalance rather than symmetric visual confusion.
 
+#### Class-imbalance mitigation experiments:
+Two mitigation strategies were tested for the ደ/ጸ imbalance: **class weighting** (inverse frequency) and **targeted oversampling** (augmenting ደ to match ጸ's training count). Across 3 seeds, both improved average ደ accuracy by ~22 pp (50.8% → 73.0%) but traded off a similar amount of ጸ accuracy (98.9% → ~86%), converging on nearly identical results despite using different mechanisms. This suggests the confusion reflects a genuine visual ceiling for these two characters at 28×28 resolution rather than a fixable data-imbalance artifact. The unweighted CNN is kept as the primary model for its stability and stronger majority-class performance.
+
 ### Sample predictions
 
 ![Sample predictions](results/sample_predictions.png)

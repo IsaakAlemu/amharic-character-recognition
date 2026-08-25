@@ -1,0 +1,44 @@
+{
+  "runs": [
+    {
+      "seed": 42,
+      "test_accuracy": 0.9647887349128723,
+      "test_loss": 0.1244988664984703,
+      "de_total": 21,
+      "de_correct": 13,
+      "de_acc_pct": 61.904761904761905,
+      "de_as_te": 6,
+      "te_total": 30,
+      "te_correct": 30,
+      "te_as_de": 0
+    },
+    {
+      "seed": 123,
+      "test_accuracy": 0.9448356628417969,
+      "test_loss": 0.15344586968421936,
+      "de_total": 21,
+      "de_correct": 18,
+      "de_acc_pct": 85.71428571428571,
+      "de_as_te": 2,
+      "te_total": 30,
+      "te_correct": 19,
+      "te_as_de": 10
+    },
+    {
+      "seed": 777,
+      "test_accuracy": 0.9671361446380615,
+      "test_loss": 0.0978243499994278,
+      "de_total": 21,
+      "de_correct": 15,
+      "de_acc_pct": 71.42857142857143,
+      "de_as_te": 5,
+      "te_total": 30,
+      "te_correct": 28,
+      "te_as_de": 2
+    }
+  ],
+  "average_test_accuracy": 0.9589201807975769,
+  "average_de_acc_pct": 73.01587301587301,
+  "average_de_as_te": 4.333333333333333,
+  "test_accuracy_range": "94.48% - 96.71%"
+}
