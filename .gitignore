@@ -1,5 +1,8 @@
-# Raw images (dataset licensing means raw images shouldn't be redistributed)
+# Raw images and large archives (dataset licensing means raw images shouldn't be redistributed)
 data/amharic_base34/
+data/amharic_all/
+data/raw_rar/
+data/238class/
 
 # Python
 __pycache__/
@@ -9,3 +12,4 @@ venv/
 
 # OS
 .DS_Store
+

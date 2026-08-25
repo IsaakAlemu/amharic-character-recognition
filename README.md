@@ -119,6 +119,10 @@ python src/train.py --model cnn
 python src/evaluate.py
 ```
 
+## Extended experiment: full 238-class syllabary
+
+The same CNN architecture (unchanged, no added capacity) was trained on the complete Ge'ez Fidel script — all 34 consonants × 7 vowel orders (238 classes, 37,652 images total, 26,356 train / 5,648 val / 5,648 test) rather than just the 33 base consonant forms. A single training run (seed 42) achieved **86.86% test accuracy** — a ~9 pp drop from the 33-class model's 95.89%, despite a >7x increase in classification space (chance level dropping from ~3.03% to ~0.42%). This result is from a single seed rather than the 3-seed stability check used elsewhere in this project, given the substantially longer training time at this scale; it should be read as a representative single run, not a fully verified stable average.
+
 ## Data source & license note
 
 Raw images are not redistributed in this repository. The dataset is
@@ -127,7 +131,6 @@ terms. This project's code is released under the license in `LICENSE`.
 
 ## Future extensions
 
-- Extend to all ~240 character forms (all 7 vowel orders, not just base)
-- Targeted disambiguation for ደ/ጸ (higher-resolution patches or balanced loss weighting to overcome the 28×28 resolution limit and sample frequency disparity)
+- Targeted disambiguation for ደ/ጸ (higher-resolution patches to overcome the 28×28 resolution limit)
 - Move from isolated-character to word/sentence-level recognition
 - Build a small demo (upload an image, get back predicted text)

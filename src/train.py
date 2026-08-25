@@ -22,7 +22,7 @@ np.random.seed(SEED)
 tf.random.set_seed(SEED)
 
 
-def build_dense_model():
+def build_dense_model(num_classes=33):
     return keras.Sequential([
         layers.Input(shape=(28, 28, 1)),
         layers.RandomRotation(0.05),
@@ -31,7 +31,7 @@ def build_dense_model():
         layers.Flatten(),
         layers.Dense(128, activation="relu"),
         layers.Dense(64, activation="relu"),
-        layers.Dense(33, activation="softmax"),
+        layers.Dense(num_classes, activation="softmax"),
     ])
 
 
@@ -39,7 +39,7 @@ def build_dense_model():
 build_model = build_dense_model
 
 
-def build_cnn_model():
+def build_cnn_model(num_classes=33):
     return keras.Sequential([
         layers.Input(shape=(28, 28, 1)),
         layers.RandomRotation(0.05),
@@ -53,7 +53,7 @@ def build_cnn_model():
         layers.MaxPooling2D((2, 2)),
         layers.Flatten(),
         layers.Dense(128, activation="relu"),
-        layers.Dense(33, activation="softmax"),
+        layers.Dense(num_classes, activation="softmax"),
     ])
 
 
@@ -106,6 +106,7 @@ def main(model_type="dense", class_weighted=False, oversample_de=False):
     X_test = np.load("data/X_test.npy").reshape(-1, 28, 28, 1)
     y_test = np.load("data/y_test.npy")
     class_names = np.load("data/class_names.npy")
+    num_classes = len(class_names)
 
     if oversample_de:
         X_train, y_train = oversample_class_de(X_train, y_train, class_names, seed=SEED)
@@ -114,15 +115,17 @@ def main(model_type="dense", class_weighted=False, oversample_de=False):
         suffix = "_oversampled"
     elif class_weighted:
         suffix = "_weighted"
+    elif num_classes == 238:
+        suffix = "_238class"
     else:
         suffix = ""
 
     if model_type == "cnn":
-        model = build_cnn_model()
+        model = build_cnn_model(num_classes=num_classes)
         model_path = f"models/amharic_char_model_cnn{suffix}.keras"
         history_path = f"results/training_history_cnn{suffix}.json"
     else:
-        model = build_dense_model()
+        model = build_dense_model(num_classes=num_classes)
         model_path = f"models/amharic_char_model{suffix}.keras"
         history_path = f"results/training_history{suffix}.json"
 
