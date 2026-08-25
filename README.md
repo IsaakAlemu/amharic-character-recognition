@@ -63,6 +63,10 @@ This is corroborated by the error directionality: misclassifications are strictl
 #### Class-imbalance mitigation experiments:
 Two mitigation strategies were tested for the ደ/ጸ imbalance: **class weighting** (inverse frequency) and **targeted oversampling** (augmenting ደ to match ጸ's training count). Across 3 seeds, both improved average ደ accuracy by ~22 pp (50.8% → 73.0%) but traded off a similar amount of ጸ accuracy (98.9% → ~86%), converging on nearly identical results despite using different mechanisms. This suggests the confusion reflects a genuine visual ceiling for these two characters at 28×28 resolution rather than a fixable data-imbalance artifact. The unweighted CNN is kept as the primary model for its stability and stronger majority-class performance.
 
+### Extended experiment: full 238-class syllabary
+
+Having established a rigorously validated 33-class model — including root-cause analysis of its main failure mode and two tested mitigation strategies — the same architecture was scaled to the full 238-class syllabary as a stress test of generalization. The complete Ge'ez Fidel script — all 34 consonants × 7 vowel orders (238 classes, 37,652 images total, 26,356 train / 5,648 val / 5,648 test) rather than just the 33 base consonant forms — was trained with the same CNN architecture (unchanged, no added capacity). A single training run (seed 42) achieved **86.86% test accuracy** — a ~9 pp drop from the 33-class model's 95.89%, despite a >7x increase in classification space (chance level dropping from ~3.03% to ~0.42%). This result is from a single seed rather than the 3-seed stability check used elsewhere in this project, given the substantially longer training time at this scale; it should be read as a representative single run, not a fully verified stable average.
+
 ### Sample predictions
 
 ![Sample predictions](results/sample_predictions.png)
@@ -118,10 +122,6 @@ python src/train.py --model cnn
 # 4. Generate evaluation visuals & benchmark comparison
 python src/evaluate.py
 ```
-
-## Extended experiment: full 238-class syllabary
-
-The same CNN architecture (unchanged, no added capacity) was trained on the complete Ge'ez Fidel script — all 34 consonants × 7 vowel orders (238 classes, 37,652 images total, 26,356 train / 5,648 val / 5,648 test) rather than just the 33 base consonant forms. A single training run (seed 42) achieved **86.86% test accuracy** — a ~9 pp drop from the 33-class model's 95.89%, despite a >7x increase in classification space (chance level dropping from ~3.03% to ~0.42%). This result is from a single seed rather than the 3-seed stability check used elsewhere in this project, given the substantially longer training time at this scale; it should be read as a representative single run, not a fully verified stable average.
 
 ## Data source & license note
 
