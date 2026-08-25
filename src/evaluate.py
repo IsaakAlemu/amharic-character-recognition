@@ -146,7 +146,7 @@ for i, name in enumerate(class_names):
     elif "211te" in name.lower() and ("211Te" in name or "211te" in name):
         idx_te = i
 
-print("\n--- Detailed Confusion Analysis: ደ (de) vs ጠ (Te) ---")
+print("\n--- Detailed Confusion Analysis: ደ (169de) vs ጸ (211Te) ---")
 if idx_de is not None and idx_te is not None:
     total_de = int(np.sum(y_test == idx_de))
     dense_de_as_te = int(cm_dense[idx_de, idx_te])
@@ -155,11 +155,11 @@ if idx_de is not None and idx_te is not None:
     cnn_de_correct = int(cm_cnn[idx_de, idx_de])
 
     print(f"Total test instances of ደ ({class_names[idx_de]}): {total_de}")
-    print(f"  - Dense NN: {dense_de_as_te}/{total_de} misclassified as ጠ ({class_names[idx_te]}), {dense_de_correct}/{total_de} correct ({dense_de_correct/total_de*100:.1f}%)")
-    print(f"  - CNN:      {cnn_de_as_te}/{total_de} misclassified as ጠ ({class_names[idx_te]}), {cnn_de_correct}/{total_de} correct ({cnn_de_correct/total_de*100:.1f}%)")
-    print(f"  - Net result: CNN doubled correct recognitions of ደ from {dense_de_correct} to {cnn_de_correct} and reduced ደ->ጠ misclassifications from {dense_de_as_te} to {cnn_de_as_te}.")
+    print(f"  - Dense NN: {dense_de_as_te}/{total_de} misclassified as ጸ ({class_names[idx_te]}), {dense_de_correct}/{total_de} correct ({dense_de_correct/total_de*100:.1f}%)")
+    print(f"  - CNN:      {cnn_de_as_te}/{total_de} misclassified as ጸ ({class_names[idx_te]}), {cnn_de_correct}/{total_de} correct ({cnn_de_correct/total_de*100:.1f}%)")
+    print(f"  - Net result: CNN doubled correct recognitions of ደ from {dense_de_correct} to {cnn_de_correct} and reduced ደ->ጸ misclassifications from {dense_de_as_te} to {cnn_de_as_te}.")
 else:
-    print("de / Te indices not found directly.")
+    print("de / 211Te indices not found directly.")
 
 # Plot CNN Confusion Matrix Heatmap
 plt.figure(figsize=(13, 11))
@@ -246,13 +246,13 @@ summary = {
         "cnn_over_baseline_pp": float((cnn_acc - baseline_acc) * 100),
         "cnn_over_dense_pp": float((cnn_acc - dense_acc) * 100),
     },
-    "de_Te_confusion_analysis": {
-        "de_class": "169de",
-        "Te_class": "211Te",
+    "de_TSe_confusion_analysis": {
+        "de_class": "169de (ደ, U+12F0)",
+        "TSe_class": "211Te (ጸ, U+1338)",
         "total_test_samples": total_de if idx_de is not None else None,
-        "dense_misclassified_as_Te": dense_de_as_te if idx_de is not None else None,
+        "dense_misclassified_as_TSe": dense_de_as_te if idx_de is not None else None,
         "dense_correct": dense_de_correct if idx_de is not None else None,
-        "cnn_misclassified_as_Te": cnn_de_as_te if idx_de is not None else None,
+        "cnn_misclassified_as_TSe": cnn_de_as_te if idx_de is not None else None,
         "cnn_correct": cnn_de_correct if idx_de is not None else None,
     },
     "num_classes": len(class_names),

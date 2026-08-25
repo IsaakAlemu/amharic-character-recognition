@@ -1,5 +1,4 @@
-# Data (large, and dataset licensing means raw images shouldn't be redistributed)
-data/*.npy
+# Raw images (dataset licensing means raw images shouldn't be redistributed)
 data/amharic_base34/
 
 # Python

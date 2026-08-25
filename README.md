@@ -20,15 +20,15 @@ problem like MNIST.
 
 | Model | Test Accuracy |
 |---|---|
-| Logistic Regression (baseline) | 82.6% |
+| Logistic Regression (baseline) | 82.4% |
 | Dense Neural Network | 86.3% |
 | **Convolutional Neural Network (CNN)** | **95.8%** |
 
 ![Baseline comparison](results/baseline_comparison.png)
 
-The dense neural network achieved an 86.3% test accuracy (~3.6 percentage
+The dense neural network achieved an 86.3% test accuracy (~3.9 percentage
 points over the linear baseline). Upgrading to a CNN yielded a substantial leap
-to **95.77% test accuracy** (+9.5 pp over Dense NN, +13.1 pp over baseline).
+to **95.77% test accuracy** (+9.5 pp over Dense NN, +13.4 pp over baseline).
 Across 3 runs with different random seeds, CNN test accuracy consistently
 ranged from **95.4% to 96.5%** (averaging **95.89%**), confirming the stability
 of spatial feature learning across initializations.
@@ -46,18 +46,19 @@ overfitting rather than causing it.
 
 ![Confusion matrix](results/confusion_matrix.png)
 
-Predictions are strongly concentrated on the diagonal (correct), with a
-small number of specific, consistent confusions rather than widespread
-errors.
+Predictions are strongly concentrated on the diagonal (correct), with errors
+sharply reduced across all character classes.
 
-**The most significant confusion, by a wide margin:** ደ (`169de`) predicted
-as ጠ (`211Te`):
+**The primary remaining confusion:** ደ (`169de`, `U+12F0`) predicted as ጸ (`211Te`, `U+1338`):
 - **Dense NN**: 12 of 21 test instances of ደ (57.1% error rate, 5 of 21 correct)
-- **CNN**: 10 of 21 test instances (47.6% error rate, a 9.5 percentage-point reduction) — doubling correct classifications from 5 to 10, though this pair remains the model's single largest confusion even after the architecture upgrade.
+- **CNN**: 10 of 21 test instances (47.6% error rate, 10 of 21 correct) — doubling correct recognitions from 5 to 10, though this pair remains the model's single largest confusion.
 
-These are two visually similar but phonetically distinct letters — a plain "d" versus an ejective "t'" sound — and this pair is also a commonly-confused pair for human learners of
-Amharic script. The model's biggest mistake tracks a genuine visual
-ambiguity in the writing system itself, not an arbitrary pixel-level quirk.
+#### Root cause analysis:
+A full manual review of all 342 images across both classes ruled out widespread dataset mislabeling (only 2 verified label errors were found and corrected in the dataset). Instead, the confusion is driven by two factors:
+1. **Subtle handwritten stroke morphology**: In Amharic handwriting, the loop-to-stem junction is thin/smooth in ጸ versus wider/near-vertical in ደ — a structural nuance that is easily degraded or compressed at 28×28 grayscale resolution.
+2. **Class frequency imbalance**: The training split contains 98 examples of ደ versus 142 examples of ጸ (+44.9% more data for ጸ). When strokes are ambiguous, the network's learned prior heavily biases predictions toward the more frequent class.
+
+This is corroborated by the error directionality: misclassifications are strictly **one-directional** (ደ $\to$ ጸ is common, while ጸ $\to$ ደ is 0.0% / 30 of 30 test samples correct for ጸ), consistent with class imbalance rather than symmetric visual confusion.
 
 ### Sample predictions
 
@@ -74,11 +75,11 @@ ambiguity in the writing system itself, not an arbitrary pixel-level quirk.
    touching any framework.
 3. **Baseline**: logistic regression on flattened pixels, to establish
    what a linear model can already do.
-4. **Neural network** (`src/train.py`): `Dense(128, relu) → Dense(64, relu)
-   → Dense(33, softmax)`, with on-the-fly data augmentation (rotation,
-   translation, zoom) and early stopping on validation accuracy.
+4. **Neural network** (`src/train.py`): Dense NN baseline and multi-layer CNN
+   (`Conv2D → Conv2D → MaxPool → Conv2D → Conv2D → MaxPool → Flatten → Dense(128) → Dense(33, softmax)`),
+   with on-the-fly data augmentation (rotation, translation, zoom) and early stopping on validation accuracy.
 5. **Evaluation** (`src/evaluate.py`): confusion matrix, baseline
-   comparison, and misclassification analysis.
+   comparison, and misclassification analysis across models.
 
 ## Project structure
 
@@ -90,11 +91,11 @@ ambiguity in the writing system itself, not an arbitrary pixel-level quirk.
 ├── src/
 │   ├── preprocess.py           # Load images, split data, train baseline
 │   ├── forward_pass_numpy.py   # Hand-written forward pass (no framework)
-│   ├── train.py                # Build, train, and save the final model
-│   └── evaluate.py             # Generate all metrics and visuals
+│   ├── train.py                # Build, train, and save dense/CNN models
+│   └── evaluate.py             # Benchmark all models and generate visuals
 ├── results/                    # Generated metrics, plots, confusion matrix
-├── models/                     # Saved trained model
-└── data/                       # Processed .npy arrays (raw images not included)
+├── models/                     # Saved trained models (.keras)
+└── data/                       # Processed .npy arrays (splits and class names)
 ```
 
 ## Running it
@@ -108,10 +109,10 @@ python src/preprocess.py --data_dir data/amharic_base34
 # 2. See the forward pass math in isolation
 python src/forward_pass_numpy.py
 
-# 3. Train the final model
-python src/train.py
+# 3. Train the model (dense or CNN)
+python src/train.py --model cnn
 
-# 4. Generate evaluation visuals
+# 4. Generate evaluation visuals & benchmark comparison
 python src/evaluate.py
 ```
 
@@ -124,6 +125,6 @@ terms. This project's code is released under the license in `LICENSE`.
 ## Future extensions
 
 - Extend to all ~240 character forms (all 7 vowel orders, not just base)
-- Targeted disambiguation for ደ/ጠ — this pair remains an open bottleneck even with a CNN, suggesting it may require targeted strategies (such as supplemental training data or attention-based fine-grained feature extraction) rather than broader architecture shifts
+- Targeted disambiguation for ደ/ጸ (higher-resolution patches or balanced loss weighting to overcome the 28×28 resolution limit and sample frequency disparity)
 - Move from isolated-character to word/sentence-level recognition
 - Build a small demo (upload an image, get back predicted text)

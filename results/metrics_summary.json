@@ -1,5 +1,5 @@
 {
-  "baseline_logistic_regression_test_accuracy": 0.8262910798122066,
+  "baseline_logistic_regression_test_accuracy": 0.823943661971831,
   "dense_nn_test_accuracy": 0.8626760840415955,
   "cnn_test_accuracy": 0.9577465057373047,
   "cnn_test_loss": 0.1416631042957306,
@@ -25,17 +25,17 @@
     ]
   },
   "improvements": {
-    "dense_over_baseline_pp": 3.638500422938884,
-    "cnn_over_baseline_pp": 13.145542592509807,
+    "dense_over_baseline_pp": 3.873242206976446,
+    "cnn_over_baseline_pp": 13.380284376547369,
     "cnn_over_dense_pp": 9.507042169570923
   },
-  "de_Te_confusion_analysis": {
-    "de_class": "169de",
-    "Te_class": "211Te",
+  "de_TSe_confusion_analysis": {
+    "de_class": "169de (\u12f0, U+12F0)",
+    "TSe_class": "211Te (\u1338, U+1338)",
     "total_test_samples": 21,
-    "dense_misclassified_as_Te": 12,
+    "dense_misclassified_as_TSe": 12,
     "dense_correct": 5,
-    "cnn_misclassified_as_Te": 10,
+    "cnn_misclassified_as_TSe": 10,
     "cnn_correct": 10
   },
   "num_classes": 33,
